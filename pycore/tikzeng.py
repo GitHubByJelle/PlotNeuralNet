@@ -19,7 +19,8 @@ def to_cor():
 \def\UnpoolColor{rgb:blue,2;green,1;black,0.3}
 \def\FcColor{rgb:blue,5;red,2.5;white,5}
 \def\FcReluColor{rgb:blue,5;red,5;white,4}
-\def\SoftmaxColor{rgb:magenta,5;black,7}   
+\def\SoftmaxColor{rgb:magenta,5;black,7}
+\def\TanhColor{rgb:blue,5;white,3}   
 \def\SumColor{rgb:blue,5;green,15}
 """
 
@@ -75,8 +76,6 @@ def to_ConvConvRelu( name, s_filer=256, n_filer=(64,64), offset="(0,0,0)", to="(
         }
     };
 """
-
-
 
 # Pool
 def to_Pool(name, offset="(0,0,0)", to="(0,0,0)", width=1, height=32, depth=32, opacity=0.5, caption=" "):
@@ -165,6 +164,42 @@ def to_SoftMax( name, s_filer=10, offset="(0,0,0)", to="(0,0,0)", width=1.5, hei
     };
 """
 
+# Relu
+def to_Relu( name, offset="(0,0,0)", to="(0,0,0)", width=1.5, height=3, depth=25, opacity=0.8, caption=" " ):
+    return r"""
+\pic[shift={"""+ offset +"""}] at """+ to +""" 
+    {Box={
+        name=""" + name +""",
+        caption="""+ caption +""",
+        xlabel={{" ","dummy"}},
+        zlabel=""" """,
+        fill=\ConvReluColor,
+        opacity="""+ str(opacity) +""",
+        height="""+ str(height) +""",
+        width="""+ str(width) +""",
+        depth="""+ str(depth) +"""
+        }
+    };
+"""
+
+# Relu
+def to_Tanh( name, offset="(0,0,0)", to="(0,0,0)", width=1.5, height=3, depth=25, opacity=0.8, caption=" " ):
+    return r"""
+\pic[shift={"""+ offset +"""}] at """+ to +""" 
+    {Box={
+        name=""" + name +""",
+        caption="""+ caption +""",
+        xlabel={{" ","dummy"}},
+        zlabel=""" """,
+        fill=\TanhColor,
+        opacity="""+ str(opacity) +""",
+        height="""+ str(height) +""",
+        width="""+ str(width) +""",
+        depth="""+ str(depth) +"""
+        }
+    };
+"""
+
 def to_Sum( name, offset="(0,0,0)", to="(0,0,0)", radius=2.5, opacity=0.6):
     return r"""
 \pic[shift={"""+ offset +"""}] at """+ to +""" 
@@ -177,6 +212,30 @@ def to_Sum( name, offset="(0,0,0)", to="(0,0,0)", radius=2.5, opacity=0.6):
         }
     };
 """
+
+
+def to_fc(name, n_filer = 64, offset="(0,0,0)", to="(0,0,0)", width=1, height=40, depth=40, caption=""):
+    # return r"""
+    # \pic[shift={(2,0,0)}] at (conv2-east) {RightBandedBox={name=fc7,caption=fc7,%
+    #     xlabel={{" ","dummy"}},zlabel=4096,fill=\FcColor,bandfill=\FcReluColor,%
+    #     height=3,width=3,depth=10}};
+    #     """
+
+    return r"""
+    \pic[shift={""" + offset + """}] at """ + to + """
+    {RightBandedBox={
+        name=""" + name +""",
+        caption=""" + caption +""",
+        xlabel={{"""+ str(n_filer) +""", "dummy"}},
+        zlabel=""" """,
+        fill=\FcColor,
+        bandfill=\FcReluColor,
+        height="""+ str(height) +""",
+        width="""+ str(width) +""",
+        depth="""+ str(depth) +"""
+        }
+    };
+    """
 
 
 def to_connection( of, to):
@@ -193,6 +252,18 @@ def to_skip( of, to, pos=1.25):
 -- node {\copymidarrow}("""+to+"""-top)
 -- node {\copymidarrow} ("""+to+"""-north);
 """
+
+def to_DensilyDashed(of, to, pos=1.25):
+    return r"""
+    \draw[densely dashed]
+    (""" + to + """-west)++(0, """ + str(pos) + """*.2, """ + str(pos) + """*.2) coordinate(a) -- (""" + of + """-nearnortheast)
+    (""" + to + """-west)++(0,-""" + str(pos) + """*.2, """ + str(pos) + """*.2) coordinate(b) -- (""" + of + """-nearsoutheast)
+    (""" + to + """-west)++(0,-""" + str(pos) + """*.2,-""" + str(pos) + """*.2) coordinate(c) -- (""" + of + """-farsoutheast)
+    (""" + to + """-west)++(0, """ + str(pos) + """*.2,-""" + str(pos) + """*.2) coordinate(d) -- (""" + of + """-farnortheast)
+    
+    (a)--(b)--(c)--(d)
+    ;
+    """
 
 def to_end():
     return r"""
